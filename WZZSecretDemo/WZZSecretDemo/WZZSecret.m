@@ -47,14 +47,15 @@
 
 #pragma mark - 对称算法
 #pragma mark base64
-//base64加密
-+ (NSString *)base64EncryptWithData:(NSData *)data {
-    return [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+//base64编码
++ (NSString *)base64EncryptWithData:(NSString *)string {
+    return [[string dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
 }
 
-//base64解密
-+ (NSData *)base64DecryptWithData:(NSString *)string {
-    return [[NSData alloc] initWithBase64EncodedString:string options:NSDataBase64DecodingIgnoreUnknownCharacters];
+//base64解码
++ (NSString *)base64DecryptWithData:(NSString *)string {
+    NSData * decodeData = [[NSData alloc] initWithBase64EncodedString:string options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    return [[NSString alloc] initWithData:decodeData encoding:NSUTF8StringEncoding];
 }
 
 #pragma mark AES
@@ -224,7 +225,7 @@
 }
 
 #pragma mark 3DES
-//DES加密
+//3DES加密
 + (NSString *)DES3EncryptWithString:(NSString *)string key:(NSString *)key {
     if (key.length != 32) {
         return nil;
@@ -259,7 +260,7 @@
     return nil;
 }
 
-//DES解密
+//3DES解密
 + (NSString *)DES3DecryptWithString:(NSString *)string key:(NSString *)key {
     if (key.length != 32) {
         return nil;
