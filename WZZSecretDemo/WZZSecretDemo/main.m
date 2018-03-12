@@ -37,20 +37,31 @@ void wzzMD5() {
     NSLog(@"%@", md5Str);
 }
 
-//MARK:AES
-void wzzAES() {
-    NSString * str = @"123456";
+//MARK:AES128
+void wzzAES128() {
+    NSString * str = @"123456啊";
     NSString * key = @"123456";
     NSString * aesStr = [WZZSecret AES128EncryptWithString:str key:key];
     NSLog(@"aes128E:%@", aesStr);
-    aesStr = @"4f1eb44d4de6ae7e97d3800ee5370f1f";
+    
     NSString * aes2 = [WZZSecret AES128DecryptWithString:aesStr key:key];
     NSLog(@"aes128D:%@", aes2);
 }
 
+//MARK:AES256
+void wzzAES256() {
+    NSString * str = @"123456啊";
+    NSString * key = @"123456";
+    NSString * aesStr = [WZZSecret AES256EncryptWithString:str key:key];
+    NSLog(@"aes256E:%@", aesStr);
+    
+    NSString * aes2 = [WZZSecret AES256DecryptWithString:aesStr key:key];
+    NSLog(@"aes256D:%@", aes2);
+}
+
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        wzzAES();
+        wzzAES256();
     }
     return 0;
 }

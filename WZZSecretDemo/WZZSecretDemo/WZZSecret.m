@@ -60,7 +60,8 @@
 
 #pragma mark AES256
 //AES加密
-+ (NSData *)AES256EncryptWithData:(NSData *)data key:(NSString *)key {
++ (NSString *)AES256EncryptWithString:(NSString *)aString key:(NSString *)key {
+    NSData * data = [aString dataUsingEncoding:NSUTF8StringEncoding];
     //AES256的密钥允许32个字节，否则将为空的密钥(空填充)
     char keyPtr[kCCKeySizeAES256+1]; //key的空间
     bzero(keyPtr, sizeof(keyPtr)); //用0填充
@@ -89,7 +90,7 @@
     if (cryptStatus == kCCSuccess) {
         //用buffer生成NSData数据
         NSData * returnData = [NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted];
-        return returnData;
+        return [self hexStringWithData:returnData];
     }
     
     free(buffer);//释放buffer;
@@ -97,7 +98,8 @@
 }
 
 //AES解密
-+ (NSData *)AES256DecryptWithData:(NSData *)data key:(NSString *)key {
++ (NSString *)AES256DecryptWithString:(NSString *)aString key:(NSString *)key {
+    NSData * data = [self dataWithHEXString:aString];
     char keyPtr[kCCKeySizeAES256+1];
     bzero(keyPtr, sizeof(keyPtr));
 
@@ -121,8 +123,8 @@
                                           &numBytesDecrypted);
     
     if (cryptStatus == kCCSuccess) {
-        NSData * returnData = [NSData dataWithBytesNoCopy:buffer length:numBytesDecrypted];
-        return returnData;
+        NSData *resultData = [NSData dataWithBytesNoCopy:buffer length:numBytesDecrypted];
+        return [[NSString alloc] initWithData:resultData encoding:NSUTF8StringEncoding];
     }
     
     free(buffer);

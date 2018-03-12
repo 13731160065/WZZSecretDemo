@@ -54,23 +54,15 @@
 #pragma mark AES
 
 /**
- AES加密
-
- @param data 明文数据
- @param key 密钥
- @return 密文数据
+ AES256加密(暂时不可用)
  */
-+ (NSData *)AES256EncryptWithData:(NSData *)data
++ (NSString *)AES256EncryptWithString:(NSString *)aString
                               key:(NSString *)key;
 
 /**
- AES解密
- 
- @param data 密文数据
- @param key 密钥
- @return 明文数据
+ AES256解密(暂时不可用)
  */
-+ (NSData *)AES256DecryptWithData:(NSData *)data
++ (NSString *)AES256DecryptWithString:(NSString *)aString
                               key:(NSString *)key;
 
 /**
