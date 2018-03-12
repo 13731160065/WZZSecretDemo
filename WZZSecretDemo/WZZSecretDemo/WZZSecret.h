@@ -63,16 +63,33 @@
 + (NSData *)AES256EncryptWithData:(NSData *)data
                               key:(NSString *)key;
 
-
 /**
  AES解密
-
+ 
  @param data 密文数据
  @param key 密钥
  @return 明文数据
  */
 + (NSData *)AES256DecryptWithData:(NSData *)data
                               key:(NSString *)key;
+
+/**
+ AES128位加密
+
+ @param aString 明文数据
+ @param key 密钥
+ @return 密文数据
+ */
++ (NSString *)AES128EncryptWithString:(NSString *)aString key:(NSString *)key;
+
+/**
+ AES128位解密
+
+ @param aString 密文数据
+ @param key 密钥
+ @return 明文数据
+ */
++ (NSString *)AES128DecryptWithString:(NSString *)aString key:(NSString *)key;
 
 #pragma mark DES
 

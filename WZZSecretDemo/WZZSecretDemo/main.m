@@ -17,7 +17,8 @@ void wzzDes3Test() {
     
     NSString * pinKey = [WZZSecret DES3DecryptWithString:mPinKey key:mainKey];
     NSString * pin = [WZZSecret DES3DecryptWithString:pinBlock key:pinKey];
-    NSString * acc = @"";
+
+    NSLog(@"pin:%@, pinKey:%@", pin, pinKey);
 }
 
 //MARK:base64
@@ -29,16 +30,27 @@ void wzzBase64() {
     NSLog(@"%@", string);
 }
 
-//MARK:MD5加密
+//MARK:MD5
 void wzzMD5() {
     NSString * str = @"123456";
     NSString * md5Str = [WZZSecret MD5WithString:str];
     NSLog(@"%@", md5Str);
 }
 
+//MARK:AES
+void wzzAES() {
+    NSString * str = @"123456";
+    NSString * key = @"123456";
+    NSString * aesStr = [WZZSecret AES128EncryptWithString:str key:key];
+    NSLog(@"aes128E:%@", aesStr);
+    aesStr = @"4f1eb44d4de6ae7e97d3800ee5370f1f";
+    NSString * aes2 = [WZZSecret AES128DecryptWithString:aesStr key:key];
+    NSLog(@"aes128D:%@", aes2);
+}
+
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        wzzMD5();
+        wzzAES();
     }
     return 0;
 }
