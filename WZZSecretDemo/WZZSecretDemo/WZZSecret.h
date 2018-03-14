@@ -52,19 +52,6 @@
 + (NSString *)base64DecryptWithData:(NSString *)string;
 
 #pragma mark AES
-
-/**
- AES256加密(暂时不可用)
- */
-+ (NSString *)AES256EncryptWithString:(NSString *)aString
-                              key:(NSString *)key;
-
-/**
- AES256解密(暂时不可用)
- */
-+ (NSString *)AES256DecryptWithString:(NSString *)aString
-                              key:(NSString *)key;
-
 /**
  AES128位加密
 

@@ -58,7 +58,7 @@
     return [[NSString alloc] initWithData:decodeData encoding:NSUTF8StringEncoding];
 }
 
-#pragma mark AES256
+#pragma mark AES256(暂不可用)
 //AES加密
 + (NSString *)AES256EncryptWithString:(NSString *)aString key:(NSString *)key {
     NSData * data = [aString dataUsingEncoding:NSUTF8StringEncoding];
@@ -197,6 +197,119 @@
 #pragma mark DES
 //DES加密
 + (NSString *)DESEncryptWithString:(NSString *)string key:(NSString *)key {
+    NSString *ciphertext = nil;
+    NSData *textData = [string dataUsingEncoding:NSUTF8StringEncoding];
+    NSUInteger dataLength = [textData length];
+    unsigned char buffer[1024 * 5];
+    memset(buffer, 0, sizeof(char));
+    size_t numBytesEncrypted = 0;
+    CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmDES,
+                                          kCCOptionPKCS7Padding|kCCOptionECBMode,
+                                          [key UTF8String], kCCKeySizeDES,
+                                          NULL,
+                                          [textData bytes], dataLength,
+                                          buffer, 1024,
+                                          &numBytesEncrypted);
+    if (cryptStatus == kCCSuccess) {
+        NSData *data = [NSData dataWithBytes:buffer length:(NSUInteger)numBytesEncrypted];
+        ciphertext = [self hexStringWithData:data];
+    }
+    return ciphertext;
+}
+
+//对应DES解密
++ (NSString *)DESDecryptWithString:(NSString *)string key:(NSString *)key {
+    NSString *ciphertext = nil;
+    NSData *textData = [self dataWithHEXString:string];
+    NSUInteger dataLength = [textData length];
+    unsigned char buffer[1024 * 5];
+    memset(buffer, 0, sizeof(char));
+    size_t numBytesEncrypted = 0;
+    CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmDES,
+                                          kCCOptionPKCS7Padding|kCCOptionECBMode,
+                                          [key UTF8String], kCCKeySizeDES,
+                                          NULL,
+                                          [textData bytes], dataLength,
+                                          buffer, 1024,
+                                          &numBytesEncrypted);
+    if (cryptStatus == kCCSuccess) {
+        NSData *data = [NSData dataWithBytes:buffer length:(NSUInteger)numBytesEncrypted];
+        ciphertext = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    }
+    return ciphertext;
+}
+
+#pragma mark 3DES
+//3DES加密
++ (NSString *)DES3EncryptWithString:(NSString *)string key:(NSString *)key {
+    if (key.length != 32) {
+        return nil;
+    }
+    if (string.length != 16 && string.length != 32) {
+        return nil;
+    }
+    
+    NSString * keyT8 = [key substringToIndex:16];
+    NSString * keyF8 = [key substringFromIndex:16];
+    NSString * text11 = [self _3DESEncryptWithString:[string substringToIndex:16] key:keyT8];
+    NSString * text12 = [self _3DESDecryptWithString:text11 key:keyF8];
+    NSString * text13 = [self _3DESEncryptWithString:text12 key:keyT8];
+    
+    NSString * text21;
+    NSString * text22;
+    NSString * text23;
+    if (string.length > 16) {
+       text21 = [self DESEncryptWithString:[string substringFromIndex:16] key:keyT8];
+       text22 = [self _3DESDecryptWithString:text21 key:keyF8];
+       text23 = [self _3DESEncryptWithString:text22 key:keyT8];
+    }
+    
+    if (text13 && text23) {
+        return [text13 stringByAppendingString:text23];
+    }
+    
+    if (text13) {
+        return text13;
+    }
+    
+    return nil;
+}
+
+//3DES解密
++ (NSString *)DES3DecryptWithString:(NSString *)string key:(NSString *)key {
+    if (key.length != 32) {
+        return nil;
+    }
+    if (string.length != 16 && string.length != 32) {
+        return nil;
+    }
+    
+    NSString * keyT8 = [key substringToIndex:16];
+    NSString * keyF8 = [key substringFromIndex:16];
+    NSString * text11 = [self _3DESDecryptWithString:[string substringToIndex:16] key:keyT8];
+    NSString * text12 = [self _3DESEncryptWithString:text11 key:keyF8];
+    NSString * text13 = [self _3DESDecryptWithString:text12 key:keyT8];
+    
+    NSString * text21;
+    NSString * text22;
+    NSString * text23;
+    if (string.length > 16) {
+        text21 = [self DESDecryptWithString:[string substringFromIndex:16] key:keyT8];
+        text22 = [self _3DESEncryptWithString:text21 key:keyF8];
+        text23 = [self _3DESDecryptWithString:text22 key:keyT8];
+    }
+    
+    if (text13 && text23) {
+        return [text13 stringByAppendingString:text23];
+    }
+    if (text13) {
+        return text13;
+    }
+    return nil;
+}
+
+//3DES需要调用的DES加密
++ (NSString *)_3DESEncryptWithString:(NSString *)string key:(NSString *)key {
     if (string.length != 16 || key.length != 16) {
         return nil;
     }
@@ -242,8 +355,8 @@
     return returnStr;
 }
 
-//DES解密
-+ (NSString *)DESDecryptWithString:(NSString *)string key:(NSString *)key {
+//3DES需要调用的DES解密
++ (NSString *)_3DESDecryptWithString:(NSString *)string key:(NSString *)key {
     if (string.length != 16 || key.length != 16) {
         return nil;
     }
@@ -287,75 +400,6 @@
         returnStr = [self hexStringWithData:cryptData];
     }
     return returnStr;
-}
-
-#pragma mark 3DES
-//3DES加密
-+ (NSString *)DES3EncryptWithString:(NSString *)string key:(NSString *)key {
-    if (key.length != 32) {
-        return nil;
-    }
-    if (string.length != 16 && string.length != 32) {
-        return nil;
-    }
-    
-    NSString * keyT8 = [key substringToIndex:16];
-    NSString * keyF8 = [key substringFromIndex:16];
-    NSString * text11 = [self DESEncryptWithString:[string substringToIndex:16] key:keyT8];
-    NSString * text12 = [self DESDecryptWithString:text11 key:keyF8];
-    NSString * text13 = [self DESEncryptWithString:text12 key:keyT8];
-    
-    NSString * text21;
-    NSString * text22;
-    NSString * text23;
-    if (string.length > 16) {
-       text21 = [self DESEncryptWithString:[string substringFromIndex:16] key:keyT8];
-       text22 = [self DESDecryptWithString:text21 key:keyF8];
-       text23 = [self DESEncryptWithString:text22 key:keyT8];
-    }
-    
-    if (text13 && text23) {
-        return [text13 stringByAppendingString:text23];
-    }
-    
-    if (text13) {
-        return text13;
-    }
-    
-    return nil;
-}
-
-//3DES解密
-+ (NSString *)DES3DecryptWithString:(NSString *)string key:(NSString *)key {
-    if (key.length != 32) {
-        return nil;
-    }
-    if (string.length != 16 && string.length != 32) {
-        return nil;
-    }
-    
-    NSString * keyT8 = [key substringToIndex:16];
-    NSString * keyF8 = [key substringFromIndex:16];
-    NSString * text11 = [self DESDecryptWithString:[string substringToIndex:16] key:keyT8];
-    NSString * text12 = [self DESEncryptWithString:text11 key:keyF8];
-    NSString * text13 = [self DESDecryptWithString:text12 key:keyT8];
-    
-    NSString * text21;
-    NSString * text22;
-    NSString * text23;
-    if (string.length > 16) {
-        text21 = [self DESDecryptWithString:[string substringFromIndex:16] key:keyT8];
-        text22 = [self DESEncryptWithString:text21 key:keyF8];
-        text23 = [self DESDecryptWithString:text22 key:keyT8];
-    }
-    
-    if (text13 && text23) {
-        return [text13 stringByAppendingString:text23];
-    }
-    if (text13) {
-        return text13;
-    }
-    return nil;
 }
 
 #pragma mark - 非对称算法
