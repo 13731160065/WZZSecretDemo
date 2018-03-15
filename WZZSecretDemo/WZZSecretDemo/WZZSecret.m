@@ -30,8 +30,7 @@
 #pragma mark SHA1
 //SHA1
 + (NSString *)SHA1WithString:(NSString *)string {
-    const char *cstr = [string cStringUsingEncoding:NSUTF8StringEncoding];
-    NSData *data = [NSData dataWithBytes:cstr length:string.length];
+    NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
     
     uint8_t digest[CC_SHA1_DIGEST_LENGTH];
     

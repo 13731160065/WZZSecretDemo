@@ -40,7 +40,7 @@ void wzzMD5() {
 //MARK:AES128
 void wzzAES128() {
     NSString * str = @"123456啊";
-    NSString * key = @"123456";
+    NSString * key = @"1234569123456999";
     NSString * aesStr = [WZZSecret AES128EncryptWithString:str key:key];
     NSLog(@"aes128E:%@", aesStr);
     
@@ -50,18 +50,19 @@ void wzzAES128() {
 
 //MARK:AES256
 void wzzAES256() {
-    NSString * str = @"123456啊";
-    NSString * key = @"123456";
-    NSString * aesStr = [WZZSecret AES256EncryptWithString:str key:key];
-    NSLog(@"aes256E:%@", aesStr);
-    
-    NSString * aes2 = [WZZSecret AES256DecryptWithString:aesStr key:key];
-    NSLog(@"aes256D:%@", aes2);
+//    NSString * str = @"123456啊";
+//    NSString * key = @"123456";
+//    NSString * aesStr = [WZZSecret AES256EncryptWithString:str key:key];
+//    NSLog(@"aes256E:%@", aesStr);
+//
+//    NSString * aes2 = [WZZSecret AES256DecryptWithString:aesStr key:key];
+//    NSLog(@"aes256D:%@", aes2);
 }
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        wzzAES256();
+        NSString * str = [WZZSecret SHA1WithString:@"ssss"];
+        NSLog(@"%@", str);
     }
     return 0;
 }
