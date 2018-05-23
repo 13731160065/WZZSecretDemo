@@ -15,16 +15,16 @@ Pod::Spec.new do |s|
   #  summary should be tweet-length, and the description more in depth.
   #
 
-  s.name         = "WZZSecretDemo"
-  s.version      = "1.0.2"
-  s.summary      = "WZZSecretDemo是一个加密工具类"
+  s.name         = "WZZSecret"
+  s.version      = "1.0.3"
+  s.summary      = "WZZSecret是一个加密工具类"
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
   #   * Try to keep it short, snappy and to the point.
   #   * Write the description between the DESC delimiters below.
   #   * Finally, don't worry about the indent, CocoaPods strips it!
-  s.description  = "WZZSecretDemo是一个加密工具类，包含md5、sha1、aes128、des、3des等加密算法"
+  s.description  = "WZZSecret是一个加密工具类，包含md5、sha1、aes128、des、3des等加密算法"
 
   s.homepage     = "http://github.com/13731160065/WZZSecretDemo"
   # s.screenshots  = "www.example.com/screenshots_1.gif", "www.example.com/screenshots_2.gif"
@@ -89,7 +89,7 @@ Pod::Spec.new do |s|
   #  Not including the public_header_files will make all headers public.
   #
 
-  s.source_files  = "WZZSecretDemo/WZZSecretDemo/*.{h,m}"
+  s.source_files  = "WZZSecretDemo/WZZSecretDemo/WZZSecret.{h,m}"
   #s.exclude_files = "Classes/Exclude"
 
   # s.public_header_files = "Classes/**/*.h"
