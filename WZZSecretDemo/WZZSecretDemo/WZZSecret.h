@@ -37,7 +37,7 @@
 /**
  base64编码
 
- @param data 待编码字符串
+ @param string 待编码字符串
  @return 编码后字符串
  */
 + (NSString *)base64EncryptWithData:(NSString *)string;
