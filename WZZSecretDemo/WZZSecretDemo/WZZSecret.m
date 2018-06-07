@@ -44,6 +44,19 @@
     return output;
 }
 
++ (NSString *)SHA256WithString:(NSString *)string {
+    NSData *keyData = [string dataUsingEncoding:NSUTF8StringEncoding];
+    
+    uint8_t digest[CC_SHA256_DIGEST_LENGTH] = {0};
+    CC_SHA256(keyData.bytes, (CC_LONG)keyData.length, digest);
+    NSData * outData = [NSData dataWithBytes:digest length:CC_SHA256_DIGEST_LENGTH];
+    NSString *hash = [outData description];
+    hash = [hash stringByReplacingOccurrencesOfString:@" " withString:@""];
+    hash = [hash stringByReplacingOccurrencesOfString:@"<" withString:@""];
+    hash = [hash stringByReplacingOccurrencesOfString:@">" withString:@""];
+    return hash;
+}
+
 #pragma mark - 对称算法
 #pragma mark base64
 //base64编码

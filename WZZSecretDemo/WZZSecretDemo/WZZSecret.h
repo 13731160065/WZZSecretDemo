@@ -31,6 +31,14 @@
  */
 + (NSString *)SHA1WithString:(NSString *)string;
 
+/**
+ SHA256加密
+
+ @param string 明文
+ @return 密文
+ */
++ (NSString *)SHA256WithString:(NSString *)string;
+
 #pragma mark - 对称算法
 #pragma mark base64编码
 
