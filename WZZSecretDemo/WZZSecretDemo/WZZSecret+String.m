@@ -78,38 +78,6 @@
 }
 
 /**
- MARK:AES256位加密
-
- @param string 明文数据
- @param key 密钥
- @return 密文数据
- */
-+ (NSString *)AES256EncryptWithString:(NSString *)string
-                                  key:(NSString *)key {
-    NSData * inData = [string dataUsingEncoding:NSUTF8StringEncoding];
-    NSData * data = [self AES256EncryptWithData:inData key:key];
-    return [self hexStringWithData:data];
-}
-
-/**
- MARK:AES256位解密
-
- @param string 密文数据
- @param key 密钥
- @return 明文数据
- */
-+ (NSString *)AES256DecryptWithString:(NSString *)string
-                                  key:(NSString *)key {
-    NSData * inData = [self dataWithHEXString:string];
-    NSData * data = [self AES256DecryptWithData:inData key:key];
-    if (data) {
-        NSString * rstr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        return rstr;
-    }
-    return nil;
-}
-
-/**
  MARK:DES加密
 
  @param string 明文数据
@@ -151,7 +119,7 @@
  */
 + (NSString *)DES3EncryptWithString:(NSString *)string
                                 key:(NSString *)key {
-    NSData * inData = [string dataUsingEncoding:NSUTF8StringEncoding];
+    NSData * inData = [self dataWithHEXString:string];
     NSData * data = [self DES3EncryptWithData:inData key:key];
     return [self hexStringWithData:data];
 }
@@ -168,7 +136,7 @@
     NSData * inData = [self dataWithHEXString:string];
     NSData * data = [self DES3DecryptWithData:inData key:key];
     if (data) {
-        NSString * rstr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSString * rstr = [self hexStringWithData:data];
         return rstr;
     }
     return nil;

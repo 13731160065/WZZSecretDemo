@@ -39,6 +39,7 @@
  加密模式：ECB
  填充模式：PKCS7Padding
  数据块：128位
+ 密钥长度：根据密钥自动计算
 
  @param data 明文数据
  @param key 密钥
@@ -53,32 +54,13 @@
  加密模式：ECB
  填充模式：PKCS7Padding
  数据块：128位
+ 密钥长度：根据密钥自动计算
 
  @param data 密文数据
  @param key 密钥
  @return 明文数据
  */
 + (NSData *)AES128DecryptWithData:(NSData *)data
-                              key:(NSString *)key;
-
-/**
- MARK:AES256位加密
-
- @param data 明文数据
- @param key 密钥
- @return 密文数据
- */
-+ (NSData *)AES256EncryptWithData:(NSData *)data
-                              key:(NSString *)key;
-
-/**
- MARK:AES256位解密
-
- @param data 密文数据
- @param key 密钥
- @return 明文数据
- */
-+ (NSData *)AES256DecryptWithData:(NSData *)data
                               key:(NSString *)key;
 
 /**

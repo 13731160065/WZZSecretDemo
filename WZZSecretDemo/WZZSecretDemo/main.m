@@ -13,15 +13,18 @@
 //MARK:3DES
 void wzzDes3Test() {
     NSLog(@"====%s====", __func__);
-    NSString * key = @"0000111100001111";
-    NSString * str = @"1234567891234567";
+    NSString * key = @"111111112222333344556677889911FE";
+    NSString * str = @"1111111111111111";
+    NSString * str2 = @"45C25386EAA7E5A2";
     
-    NSLog(@"明文：%@", str);
+    NSLog(@"明文：%@ %@", str, str2);
     NSLog(@"密钥：%@", key);
     NSString * enstr = [WZZSecret DES3EncryptWithString:str key:key];
+    NSString * enstr2 = [WZZSecret DES3EncryptWithString:str2 key:key];
     NSString * destr = [WZZSecret DES3DecryptWithString:enstr key:key];
-    NSLog(@"密文：%@", enstr);
-    NSLog(@"明文：%@", destr);
+    NSString * destr2 = [WZZSecret DES3DecryptWithString:enstr2 key:key];
+    NSLog(@"密文：%@ %@", enstr, enstr2);
+    NSLog(@"明文：%@ %@", destr, destr2);
 }
 
 //MARK:base64
@@ -48,8 +51,9 @@ void wzzMD5() {
 
 //MARK:AES128
 void wzzAES128() {
+    NSLog(@"加解密参考网站：http://tool.chacuo.net/cryptaes");
     NSLog(@"====%s====", __func__);
-    NSString * key = @"1234567890";
+    NSString * key = @"24952b1644ae9c289569a119fa899a50";
     NSString * str = @"1234567891234567";
     
     NSLog(@"明文：%@", str);
@@ -61,18 +65,18 @@ void wzzAES128() {
 }
 
 //MARK:AES256
-void wzzAES256() {
-    NSLog(@"====%s====", __func__);
-    NSString * key = @"24952b1644ae9c289569a119fa899a50";//0000111100001111";
-    NSString * str = @"1234567891234567";
-    
-    NSLog(@"明文：%@", str);
-    NSLog(@"密钥：%@", key);
-    NSString * enstr = [WZZSecret AES256EncryptWithString:str key:key];
-    NSString * destr = [WZZSecret AES256DecryptWithString:enstr key:key];
-    NSLog(@"密文：%@", enstr);
-    NSLog(@"明文：%@", destr);
-}
+//void wzzAES256() {
+//    NSLog(@"====%s====", __func__);
+//    NSString * key = @"24952b1644ae9c289569a119fa899a50";//0000111100001111";
+//    NSString * str = @"1234567891234567";
+//
+//    NSLog(@"明文：%@", str);
+//    NSLog(@"密钥：%@", key);
+//    NSString * enstr = [WZZSecret AES256EncryptWithString:str key:key];
+//    NSString * destr = [WZZSecret AES256DecryptWithString:enstr key:key];
+//    NSLog(@"密文：%@", enstr);
+//    NSLog(@"明文：%@", destr);
+//}
 
 void wzzSHA256() {
     NSLog(@"====%s====", __func__);
@@ -199,9 +203,8 @@ void testf() {
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-//        wzzDes3Test();
-        wzzAES128();
-//        wzzAES256();
+//        wzzDes3Test();//√
+//        wzzAES128();//√
 //        wzzMD5();//√
 //        wzzSHA256();//√
 //        wzzSHA1();//√

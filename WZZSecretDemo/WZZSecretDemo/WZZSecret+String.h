@@ -54,26 +54,6 @@
                                 key:(NSString *)key;
 
 /**
- MARK:AES256位加密
-
- @param string 明文数据
- @param key 密钥
- @return 密文数据
- */
-+ (NSString *)AES256EncryptWithString:(NSString *)string
-                                  key:(NSString *)key;
-
-/**
- MARK:AES256位解密
-
- @param string 密文数据
- @param key 密钥
- @return 明文数据
- */
-+ (NSString *)AES256DecryptWithString:(NSString *)string
-                                key:(NSString *)key;
-
-/**
  MARK:DES加密
 
  @param string 明文数据
