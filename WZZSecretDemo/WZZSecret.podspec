@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "WZZSecret"
-  s.version      = "1.0.4"
+  s.version      = "1.0.6"
   s.summary      = "WZZSecret是一个加密工具类"
 
   # This description is used to generate tags and improve search results.
