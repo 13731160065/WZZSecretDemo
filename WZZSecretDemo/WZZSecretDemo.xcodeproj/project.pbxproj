@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		526A9D95264E2E5E004084A6 /* WZZSecret+String.m in Sources */ = {isa = PBXBuildFile; fileRef = 526A9D94264E2E5E004084A6 /* WZZSecret+String.m */; };
 		718956121F49EBC0006A82D2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 718956111F49EBC0006A82D2 /* main.m */; };
 		718956251F49EC43006A82D2 /* WZZSecret.m in Sources */ = {isa = PBXBuildFile; fileRef = 718956241F49EC43006A82D2 /* WZZSecret.m */; };
 /* End PBXBuildFile section */
@@ -24,6 +25,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		526A9D93264E2E5E004084A6 /* WZZSecret+String.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WZZSecret+String.h"; sourceTree = "<group>"; };
+		526A9D94264E2E5E004084A6 /* WZZSecret+String.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "WZZSecret+String.m"; sourceTree = "<group>"; };
 		7189560E1F49EBC0006A82D2 /* WZZSecretDemo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = WZZSecretDemo; sourceTree = BUILT_PRODUCTS_DIR; };
 		718956111F49EBC0006A82D2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		718956231F49EC43006A82D2 /* WZZSecret.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WZZSecret.h; sourceTree = "<group>"; };
@@ -63,6 +66,8 @@
 				718956111F49EBC0006A82D2 /* main.m */,
 				718956231F49EC43006A82D2 /* WZZSecret.h */,
 				718956241F49EC43006A82D2 /* WZZSecret.m */,
+				526A9D93264E2E5E004084A6 /* WZZSecret+String.h */,
+				526A9D94264E2E5E004084A6 /* WZZSecret+String.m */,
 			);
 			path = WZZSecretDemo;
 			sourceTree = "<group>";
@@ -107,6 +112,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -127,6 +133,7 @@
 			files = (
 				718956121F49EBC0006A82D2 /* main.m in Sources */,
 				718956251F49EC43006A82D2 /* WZZSecret.m in Sources */,
+				526A9D95264E2E5E004084A6 /* WZZSecret+String.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

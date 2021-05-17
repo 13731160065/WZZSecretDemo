@@ -13,141 +13,62 @@
 @implementation WZZSecret
 
 #pragma mark - 散列算法
-#pragma mark MD5
-//MD5
-+ (NSString *)MD5WithString:(NSString *)string {
-    const char *cStr = [string UTF8String];
-    unsigned char digest[CC_MD5_DIGEST_LENGTH];
-    CC_MD5( cStr, (CC_LONG)strlen(cStr), digest );
+
+/// MARK:MD5
+/// @param data 数据
++ (NSData *)MD5WithData:(NSData *)data {
+    uint8_t digest[CC_MD5_DIGEST_LENGTH];
+    CC_MD5(data.bytes, (CC_LONG)data.length, digest);
     NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
-    
-    for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
+    for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++) {
         [output appendFormat:@"%02x", digest[i]];
-    
-    return output;
+    }
+        
+    return [self dataWithHEXString:output];
 }
 
-#pragma mark SHA1
-//SHA1
-+ (NSString *)SHA1WithString:(NSString *)string {
-    NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
-    
+/**
+ MARK:SHA1加密
+ 
+ @param data 明文
+ @return 密文
+ */
++ (NSData *)SHA1WithData:(NSData *)data {
     uint8_t digest[CC_SHA1_DIGEST_LENGTH];
-    
     CC_SHA1(data.bytes, (CC_LONG)data.length, digest);
-    
-    NSMutableString* output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
-    
-    for(int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++)
-        [output appendFormat:@"%02x", digest[i]];
-    
-    return output;
+    NSData * outData = [NSData dataWithBytes:digest length:CC_SHA1_DIGEST_LENGTH];
+    return outData;
 }
 
-+ (NSString *)SHA256WithString:(NSString *)string {
-    NSData *keyData = [string dataUsingEncoding:NSUTF8StringEncoding];
-    
+/**
+ MARK:SHA256加密
+ 
+ @param data 明文
+ @return 密文
+ */
++ (NSData *)SHA256WithData:(NSData *)data {
     uint8_t digest[CC_SHA256_DIGEST_LENGTH] = {0};
-    CC_SHA256(keyData.bytes, (CC_LONG)keyData.length, digest);
+    CC_SHA256(data.bytes, (CC_LONG)data.length, digest);
     NSData * outData = [NSData dataWithBytes:digest length:CC_SHA256_DIGEST_LENGTH];
-    NSString *hash = [outData description];
-    hash = [hash stringByReplacingOccurrencesOfString:@" " withString:@""];
-    hash = [hash stringByReplacingOccurrencesOfString:@"<" withString:@""];
-    hash = [hash stringByReplacingOccurrencesOfString:@">" withString:@""];
-    return hash;
+    return outData;
 }
 
 #pragma mark - 对称算法
-#pragma mark base64
-//base64编码
-+ (NSString *)base64EncryptWithData:(NSString *)string {
-    return [[string dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-}
-
-//base64解码
-+ (NSString *)base64DecryptWithData:(NSString *)string {
-    NSData * decodeData = [[NSData alloc] initWithBase64EncodedString:string options:NSDataBase64DecodingIgnoreUnknownCharacters];
-    return [[NSString alloc] initWithData:decodeData encoding:NSUTF8StringEncoding];
-}
-
-#pragma mark AES256(暂不可用)
-//AES加密
-+ (NSString *)AES256EncryptWithString:(NSString *)aString key:(NSString *)key {
-    NSData * data = [aString dataUsingEncoding:NSUTF8StringEncoding];
-    //AES256的密钥允许32个字节，否则将为空的密钥(空填充)
-    char keyPtr[kCCKeySizeAES256+1]; //key的空间
-    bzero(keyPtr, sizeof(keyPtr)); //用0填充
-    
-    //获取密钥数据
-    [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
-    
-    NSUInteger dataLength = [data length];
-    
-    //见文档:对于分组密钥，输出大小总是小于等于输入大小加上一组密钥大小，这就是为什么要加一组密钥大小
-    size_t bufferSize = dataLength + kCCBlockSizeAES128;
-    void *buffer = malloc(bufferSize);
-    
-    size_t numBytesEncrypted = 0;
-    CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt,
-                                          kCCAlgorithmAES128,
-                                          kCCOptionPKCS7Padding,
-                                          keyPtr,
-                                          kCCKeySizeAES256,
-                                          NULL, //初始化向量(可选，见CCCrypt声明)
-                                          [data bytes],
-                                          dataLength,//输入
-                                          buffer,
-                                          bufferSize, //输出
-                                          &numBytesEncrypted);
-    if (cryptStatus == kCCSuccess) {
-        //用buffer生成NSData数据
-        NSData * returnData = [NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted];
-        return [self hexStringWithData:returnData];
+/**
+ MARK:AES128位加密
+ 
+ @param data 明文数据
+ @param key 密钥
+ @return 密文数据
+ */
++ (NSData *)AES128EncryptWithData:(NSData *)data
+                              key:(NSString *)key {
+    NSInteger length = key.length*8;
+    int keyLength = kCCKeySizeAES128;
+    if (length >= 256) {
+        keyLength = kCCKeySizeAES256;
     }
-    
-    free(buffer);//释放buffer;
-    return nil;
-}
-
-//AES解密
-+ (NSString *)AES256DecryptWithString:(NSString *)aString key:(NSString *)key {
-    NSData * data = [self dataWithHEXString:aString];
-    char keyPtr[kCCKeySizeAES256+1];
-    bzero(keyPtr, sizeof(keyPtr));
-
-    [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
-    
-    NSUInteger dataLength = [data length];
-    
-    size_t bufferSize = dataLength + kCCBlockSizeAES128;
-    void *buffer = malloc(bufferSize);
-    
-    size_t numBytesDecrypted = 0;
-    CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt,
-                                          kCCAlgorithmAES128,
-                                          kCCOptionPKCS7Padding,
-                                          keyPtr,
-                                          kCCKeySizeAES256,
-                                          NULL,
-                                          [data bytes], dataLength,
-                                          buffer,
-                                          bufferSize,
-                                          &numBytesDecrypted);
-    
-    if (cryptStatus == kCCSuccess) {
-        NSData *resultData = [NSData dataWithBytesNoCopy:buffer length:numBytesDecrypted];
-        return [[NSString alloc] initWithData:resultData encoding:NSUTF8StringEncoding];
-    }
-    
-    free(buffer);
-    return nil;
-}
-
-#pragma mark AES128
-//AES加密
-+ (NSString *)AES128EncryptWithString:(NSString *)aString key:(NSString *)key {
-    NSData * data = [aString dataUsingEncoding:NSUTF8StringEncoding];
-    char keyPtr[kCCKeySizeAES128+1];
+    char keyPtr[keyLength+1];
     memset(keyPtr, 0, sizeof(keyPtr));
     [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
     
@@ -169,15 +90,21 @@
                                           &numBytesEncrypted);
     if (cryptStatus == kCCSuccess) {
         NSData *resultData = [NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted];
-        return [self hexStringWithData:resultData];
+        return resultData;
     }
     free(buffer);
     return nil;
 }
 
-//AES解密
-+ (NSString *)AES128DecryptWithString:(NSString *)aString key:(NSString *)key {
-    NSData * data = [self dataWithHEXString:aString];
+/**
+ MARK:AES128位解密
+ 
+ @param data 密文数据
+ @param key 密钥
+ @return 明文数据
+ */
++ (NSData *)AES128DecryptWithData:(NSData *)data
+                              key:(NSString *)key {
     char keyPtr[kCCKeySizeAES128 + 1];
     memset(keyPtr, 0, sizeof(keyPtr));
     [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
@@ -200,18 +127,100 @@
                                           &numBytesCrypted);
     if (cryptStatus == kCCSuccess) {
         NSData *resultData = [NSData dataWithBytesNoCopy:buffer length:numBytesCrypted];
-        return [[NSString alloc] initWithData:resultData encoding:NSUTF8StringEncoding];
+        return resultData;
     }
     free(buffer);
     return nil;
 }
 
-#pragma mark DES
-//DES加密
-+ (NSString *)DESEncryptWithString:(NSString *)string key:(NSString *)key {
-    NSString *ciphertext = nil;
-    NSData *textData = [string dataUsingEncoding:NSUTF8StringEncoding];
-    NSUInteger dataLength = [textData length];
+/**
+ MARK:AES256位加密
+ 
+ @param data 明文数据
+ @param key 密钥
+ @return 密文数据
+ */
++ (NSData *)AES256DecryptWithData:(NSData *)data
+                              key:(NSString *)key {
+    char keyPtr[kCCKeySizeAES256 + 1];  //kCCKeySizeAES128是加密位数 可以替换成256位的
+    bzero(keyPtr, sizeof(keyPtr));
+    [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+    
+    size_t bufferSize = [data length] + kCCBlockSizeAES128;
+    void *buffer = malloc(bufferSize);
+    size_t numBytesEncrypted = 0;
+    
+    // 设置加密参数
+    /**
+        这里设置的参数ios默认为CBC加密方式，如果需要其他加密方式如ECB，在kCCOptionPKCS7Padding这个参数后边加上kCCOptionECBMode，即kCCOptionPKCS7Padding | kCCOptionECBMode，但是记得修改上边的偏移量，因为只有CBC模式有偏移量之说
+
+    */
+    CCCryptorStatus cryptorStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding|kCCOptionECBMode,
+                                            keyPtr, kCCKeySizeAES256,
+                                            NULL,
+                                            [data bytes], [data length],
+                                            buffer, bufferSize,
+                                            &numBytesEncrypted);
+    
+    if(cryptorStatus == kCCSuccess) {
+        NSData * dataf = [NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted];
+        return dataf;
+    }
+    
+    free(buffer);
+    return nil;
+}
+
+/**
+ MARK:AES256位解密
+ 
+ @param data 密文数据
+ @param key 密钥
+ @return 明文数据
+ */
++ (NSData *)AES256EncryptWithData:(NSData *)data
+                              key:(NSString *)key {
+    char keyPtr[kCCKeySizeAES256 + 1];  //kCCKeySizeAES128是加密位数 可以替换成256位的
+    bzero(keyPtr, sizeof(keyPtr));
+    [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+    
+    size_t bufferSize = [data length] + kCCBlockSizeAES128;
+    void *buffer = malloc(bufferSize);
+    size_t numBytesEncrypted = 0;
+    
+    // 设置加密参数
+    /**
+        这里设置的参数ios默认为CBC加密方式，如果需要其他加密方式如ECB，在kCCOptionPKCS7Padding这个参数后边加上kCCOptionECBMode，即kCCOptionPKCS7Padding | kCCOptionECBMode，但是记得修改上边的偏移量，因为只有CBC模式有偏移量之说
+
+    */
+    CCCryptorStatus cryptorStatus = CCCrypt(kCCEncrypt,
+                                            kCCAlgorithmAES,
+                                            kCCOptionPKCS7Padding|kCCOptionECBMode,
+                                            keyPtr, kCCKeySizeAES256,
+                                            NULL,
+                                            [data bytes], [data length],
+                                            buffer, bufferSize,
+                                            &numBytesEncrypted);
+    
+    if(cryptorStatus == kCCSuccess) {
+        NSData * rdata = [NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted];
+        return rdata;
+    }
+    
+    free(buffer);
+    return nil;
+}
+
+/**
+ MARK:DES加密
+ 
+ @param data 明文数据
+ @param key 密钥
+ @return 密文数据
+ */
++ (NSData *)DESEncryptWithData:(NSData *)data
+                           key:(NSString *)key; {
+    NSUInteger dataLength = [data length];
     unsigned char buffer[1024 * 5];
     memset(buffer, 0, sizeof(char));
     size_t numBytesEncrypted = 0;
@@ -219,21 +228,27 @@
                                           kCCOptionPKCS7Padding|kCCOptionECBMode,
                                           [key UTF8String], kCCKeySizeDES,
                                           NULL,
-                                          [textData bytes], dataLength,
+                                          [data bytes], dataLength,
                                           buffer, 1024,
                                           &numBytesEncrypted);
     if (cryptStatus == kCCSuccess) {
-        NSData *data = [NSData dataWithBytes:buffer length:(NSUInteger)numBytesEncrypted];
-        ciphertext = [self hexStringWithData:data];
+        NSData *dataRes = [NSData dataWithBytes:buffer length:(NSUInteger)numBytesEncrypted];
+        return dataRes;
     }
-    return ciphertext;
+    free(buffer);
+    return nil;
 }
 
-//对应DES解密
-+ (NSString *)DESDecryptWithString:(NSString *)string key:(NSString *)key {
-    NSString *ciphertext = nil;
-    NSData *textData = [self dataWithHEXString:string];
-    NSUInteger dataLength = [textData length];
+/**
+ MARK:DES解密
+ 
+ @param data 密文数据
+ @param key 密钥
+ @return 明文数据
+ */
++ (NSData *)DESDecryptWithData:(NSData *)data
+                           key:(NSString *)key {
+    NSUInteger dataLength = [data length];
     unsigned char buffer[1024 * 5];
     memset(buffer, 0, sizeof(char));
     size_t numBytesEncrypted = 0;
@@ -241,19 +256,27 @@
                                           kCCOptionPKCS7Padding|kCCOptionECBMode,
                                           [key UTF8String], kCCKeySizeDES,
                                           NULL,
-                                          [textData bytes], dataLength,
+                                          [data bytes], dataLength,
                                           buffer, 1024,
                                           &numBytesEncrypted);
     if (cryptStatus == kCCSuccess) {
-        NSData *data = [NSData dataWithBytes:buffer length:(NSUInteger)numBytesEncrypted];
-        ciphertext = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSData *dataRes = [NSData dataWithBytes:buffer length:(NSUInteger)numBytesEncrypted];
+        return dataRes;
     }
-    return ciphertext;
+    free(buffer);
+    return nil;
 }
 
-#pragma mark 3DES
-//3DES加密
-+ (NSString *)DES3EncryptWithString:(NSString *)string key:(NSString *)key {
+/**
+ MARK:3DES加密
+ 
+ @param data 明文数据
+ @param key 密钥
+ @return 密文数据
+ */
++ (NSData *)DES3EncryptWithData:(NSData *)data
+                            key:(NSString *)key {
+    NSString * string = [self hexStringWithData:data];
     if (key.length != 32) {
         return nil;
     }
@@ -271,24 +294,34 @@
     NSString * text22;
     NSString * text23;
     if (string.length > 16) {
-       text21 = [self DESEncryptWithString:[string substringFromIndex:16] key:keyT8];
-       text22 = [self _3DESDecryptWithString:text21 key:keyF8];
-       text23 = [self _3DESEncryptWithString:text22 key:keyT8];
+        NSData * text21Data = [self DESEncryptWithData:[self dataWithHEXString:[string substringFromIndex:16]] key:keyT8];
+        text21 = [self hexStringWithData:text21Data];
+        text22 = [self _3DESDecryptWithString:text21 key:keyF8];
+        text23 = [self _3DESEncryptWithString:text22 key:keyT8];
     }
     
     if (text13 && text23) {
-        return [text13 stringByAppendingString:text23];
+        NSString * returnStr = [text13 stringByAppendingString:text23];
+        return [self dataWithHEXString:returnStr];
     }
     
     if (text13) {
-        return text13;
+        return [self dataWithHEXString:text13];
     }
     
     return nil;
 }
 
-//3DES解密
-+ (NSString *)DES3DecryptWithString:(NSString *)string key:(NSString *)key {
+/**
+ MARK:3DES解密
+ 
+ @param data 密文数据
+ @param key 密钥
+ @return 明文数据
+ */
++ (NSData *)DES3DecryptWithData:(NSData *)data
+                            key:(NSString *)key; {
+    NSString * string = [self hexStringWithData:data];
     if (key.length != 32) {
         return nil;
     }
@@ -306,16 +339,18 @@
     NSString * text22;
     NSString * text23;
     if (string.length > 16) {
-        text21 = [self DESDecryptWithString:[string substringFromIndex:16] key:keyT8];
+        NSData * text21Data = [self DESDecryptWithData:[self dataWithHEXString:[string substringFromIndex:16]] key:keyT8];
+        text21 = [self hexStringWithData:text21Data];
         text22 = [self _3DESEncryptWithString:text21 key:keyF8];
         text23 = [self _3DESDecryptWithString:text22 key:keyT8];
     }
     
     if (text13 && text23) {
-        return [text13 stringByAppendingString:text23];
+        NSString * returnStr = [text13 stringByAppendingString:text23];
+        return [self dataWithHEXString:returnStr];
     }
     if (text13) {
-        return text13;
+        return [self dataWithHEXString:text13];
     }
     return nil;
 }
@@ -417,6 +452,28 @@
 #pragma mark - 非对称算法
 
 #pragma mark - 其他方法
+
+/**
+ MARK:base64编码
+
+ @param data 待编码data
+ @return 编码后字符串
+ */
++ (NSString *)base64EncodeStringWithData:(NSData *)data {
+    return [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+}
+
+/**
+ MARK:base64解码
+
+ @param string 待解码字符串
+ @return 解码后字符串
+ */
++ (NSData *)base64DecodeDataWithString:(NSString *)string; {
+    NSData * decodeData = [[NSData alloc] initWithBase64EncodedString:string options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    return decodeData;
+}
+
 //data转换成十六进制字符串
 + (NSString*)hexStringWithData:(NSData *)data {
     NSMutableString *arrayString = [[NSMutableString alloc]initWithCapacity:data.length * 2];
